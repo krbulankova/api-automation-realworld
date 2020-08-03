@@ -15,9 +15,12 @@ import static net.serenitybdd.core.Serenity.setSessionVariable;
 
 public class RealworldSteps extends BaseSteps {
   private final static String _API_USERS_ = "/api/users/";
+  private final static String _API_USER_ = "/api/user/";
+  private final static String _API_CREATE_POST = "/api/articles";
   private final static String _API_ARTICLES_ = "/api/articles/";
-  // Find endpoint for API login
-  private final static String _API_USERS_LOGIN_ = null;
+  private final static String _API_USERS_LOGIN_ = "/api/users/login";
+
+
 
   @Steps
   RealworldSteps realworldSteps;
@@ -58,6 +61,48 @@ public class RealworldSteps extends BaseSteps {
       saveValueInPathToSessionVariable("user --> token", "token");
     }
   }
+  @Step
+  public static void updateSetting(DataTable dataTable) throws IOException {
+      sendRequestWithBodyJson(PUT, _API_USER_ , createBody(dataTable));
+    }
+
+    @Step
+  public static void createPost(DataTable dataTable) throws IOException {
+      sendRequestWithBodyJson(POST, _API_CREATE_POST, createBody(dataTable));
+    }
+
+    @Step
+  public static void deleteArticle() throws IOException {
+
+      sessionVariableCalled("slug");
+
+      sendRequestWithBodyJson(DELETE, _API_ARTICLES_ + sessionVariableCalled("slug"), "{}");
+    }
+
+    @Step
+  public static void modifyArticle(DataTable dataTable) throws IOException {
+
+      sessionVariableCalled("slug");
+
+      sendRequestWithBodyJson(PUT, _API_ARTICLES_ + sessionVariableCalled("slug"), createBody(dataTable));
+  }
+
+   @Step
+    public static void addComment(DataTable dataTable) throws IOException {
+    sendRequestWithBodyJson(POST, addCommentEndpoint(sessionVariableCalled("slug")), createBody(dataTable));
+    }
+
+
+
+  @Step
+  public static void deleteComment() throws IOException {
+    // /api/articles/aaaa/comments/2
+    sendRequestWithBodyJson(
+            DELETE,
+            _API_ARTICLES_
+                    + sessionVariableCalled("slug") + "/comments/"
+                    + sessionVariableCalled("comment_id"), "{}");
+  }
 
 
   // Private
@@ -65,4 +110,6 @@ public class RealworldSteps extends BaseSteps {
   private static String addCommentEndpoint(String slug){
     return _API_ARTICLES_ + slug + "/comments";
   }
+
+
 }
